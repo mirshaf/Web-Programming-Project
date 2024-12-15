@@ -42,6 +42,33 @@ public class User {
         this.followingIds = new ArrayList<>();
     }
 
+    public boolean addFollowing(Integer id) {
+        if (this.followingIds.contains(id)) {
+            return false;
+        }
+        this.followings++;
+        this.followingIds.add(id);
+        System.out.println(this.id + " followed " + id);
+        return true;
+    }
+
+    public boolean removeFollowing(Integer id) {
+        if (! this.followingIds.remove(id)) {
+            return false;
+        }
+        this.followings--;
+        System.out.println(this.id + " unfollowed " + id);
+        return true;
+    }
+
+    public void addFollower() {
+        this.followers++;
+    }
+
+    public void removeFollower() {
+        this.followers--;
+    }
+
     public Boolean follows(Integer id) {
         return this.followingIds.contains(id);
     }
@@ -54,71 +81,35 @@ public class User {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public Role getRole() {
         return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public int getPoints() {
         return points;
-    }
-
-    public void setPoints(int points) {
-        this.points = points;
     }
 
     public String getAvatar_url() {
         return avatar_url;
     }
 
-    public void setAvatar_url(String avatar_url) {
-        this.avatar_url = avatar_url;
-    }
-
     public int getFollowings() {
         return followings;
     }
 
-    public void setFollowings(int followings) {
-        this.followings = followings;
-    }
-
     public int getFollowers() {
         return followers;
-    }
-
-    public void setFollowers(int followers) {
-        this.followers = followers;
     }
 }

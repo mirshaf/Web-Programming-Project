@@ -10,13 +10,13 @@ import java.util.Map;
 
 @Service
 public class Database {
-    private final List<User> users = new ArrayList<>();
+    private final Map<Integer, User> users = new HashMap<>();
     private final Map<String, User> loggedInUsers = new HashMap<>();
     private final Map<Integer, Category> categories = new HashMap<>();
     private final Map<Integer, Question> questions = new HashMap<>();
 
     public User getUserByEmail(String email) {
-        for(User user : users){
+        for(User user : users.values()){
             if (user.getEmail().equals(email)){
                 return user;
             }
@@ -26,7 +26,7 @@ public class Database {
 
     public User registerUser(String username, String email, String password, String avatar_url, String role) {
         User user = new User(username, password, role, email, avatar_url);
-        users.add(user);
+        users.put(user.getId(), user);
         return user;
     }
 
@@ -52,12 +52,16 @@ public class Database {
     public List<User> getUsers(String username) {
         List<User> filteredUsers = new ArrayList<>();
         for (User u :
-                users) {
+                users.values()) {
             if (username == null || u.getUsername().equals(username)) {
                 filteredUsers.add(u);
             }
         }
         return filteredUsers;
+    }
+
+    public User getUserById(Integer id) {
+        return users.get(id);
     }
 
     public Category getCategoryByName(String name) {
