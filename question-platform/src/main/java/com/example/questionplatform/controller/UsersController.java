@@ -2,10 +2,7 @@ package com.example.questionplatform.controller;
 
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.User;
-import com.example.questionplatform.response.ErrorRes;
-import com.example.questionplatform.response.GetUsersRes;
-import com.example.questionplatform.response.MessageRes;
-import com.example.questionplatform.response.Response;
+import com.example.questionplatform.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +19,21 @@ public class UsersController {
         if (user == null)
             return new ErrorRes("Unauthenticated");
         return new GetUsersRes(database.getUsers(query), user);
+    }
+
+    @GetMapping("/{id}")
+    public Response getUser(@RequestHeader("Authorization") String authHeader,
+                            @PathVariable Integer id) {
+        User user = database.getUser(authHeader);
+        if (user == null)
+            return new ErrorRes("Unauthenticated");
+
+        User other = database.getUserById(id);
+        if (other == null) {
+            return new ErrorRes("User not found");
+        }
+
+        return new UserRes3(other, user);
     }
 
     @PostMapping("/{id}/follow")
