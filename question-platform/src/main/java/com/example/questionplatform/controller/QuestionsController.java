@@ -1,8 +1,10 @@
 package com.example.questionplatform.controller;
 
 import com.example.questionplatform.model.Database;
+import com.example.questionplatform.model.Question;
 import com.example.questionplatform.model.User;
 import com.example.questionplatform.response.ErrorRes;
+import com.example.questionplatform.response.QuestionRes;
 import com.example.questionplatform.response.QuestionsRes;
 import com.example.questionplatform.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +23,19 @@ public class QuestionsController {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
-        //todo: test if params work
-        System.out.println(category + " " + difficulty);
         return new QuestionsRes(database.getQuestions(category, difficulty), database);
+    }
+
+    @GetMapping("/{id}")
+    public Response getQuestion(@RequestHeader("Authorization") String authHeader,
+                                @PathVariable("id") Integer id){
+        User user = database.getUser(authHeader);
+        if (user == null)
+            return new ErrorRes("Unauthenticated");
+        Question question = database.getQuestionById(id);
+        if (question == null) {
+            return new ErrorRes("Question not found");
+        }
+        return new QuestionRes(question, database);
     }
 }

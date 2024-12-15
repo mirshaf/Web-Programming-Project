@@ -21,7 +21,7 @@ public class QuestionsRes implements Response {
         }
     }
 
-    private class QuestionRes {
+    private class QuestionRes { //todo: replace
         private Integer id;
         private String text;
         private String category;
@@ -32,6 +32,22 @@ public class QuestionsRes implements Response {
             this.text = question.getText();
             this.category = database.getCategoryById(question.getCategory_id()).getName();
             this.difficulty = question.getDifficulty_level().toString();
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public String getCategory() {
+            return category;
+        }
+
+        public String getDifficulty() {
+            return difficulty;
         }
     }
 }

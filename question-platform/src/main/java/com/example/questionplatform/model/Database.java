@@ -15,6 +15,26 @@ public class Database {
     private final Map<Integer, Category> categories = new HashMap<>();
     private final Map<Integer, Question> questions = new HashMap<>();
 
+    public Database() {
+        Question question1 = new Question("انقلاب کبیر ...؟", "انگلیس", "فرانسه", "اسپانیا", "چین", 2, Question.Difficulty_Level.easy, 1, 1);
+        Question question2 = new Question("کتاب The Art of War اثر کیست؟", "Johnny Depp", "Johnny Shallow", "Johnny Deep", "Sun Tzu", 4, Question.Difficulty_Level.hard, 2, 1);
+        List<Question> questions1 = new ArrayList<>();
+        questions1.add(question1);
+        questions1.add(question2);
+        Category category1 = new Category("تاریخ", "سوالات تاریخی جالب", 1, questions1);
+        Question question3 = new Question("اینجا کجاس؟", "زمین", "آسیا", "خونه", "دره", 1, Question.Difficulty_Level.medium, 1, 2);
+        List<Question> questions2 = new ArrayList<>();
+        questions2.add(question3);
+        Category category2 = new Category("جغرافیا", "جغرافیا باحاله (الکی)", 2, questions2);
+
+        this.questions.put(question1.getId(), question1);
+        this.questions.put(question2.getId(), question2);
+        this.questions.put(question3.getId(), question3);
+        this.categories.put(category1.getId(), category1);
+        this.categories.put(category2.getId(), category2);
+        System.out.println("Database initialized...");
+    }
+
     public User getUserByEmail(String email) {
         for(User user : users.values()){
             if (user.getEmail().equals(email)){
@@ -88,5 +108,9 @@ public class Database {
         }
 
         return filtered_questions;
+    }
+
+    public Question getQuestionById(Integer id) {
+        return questions.get(id);
     }
 }
