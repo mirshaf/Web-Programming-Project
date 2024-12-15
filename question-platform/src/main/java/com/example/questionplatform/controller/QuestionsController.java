@@ -3,10 +3,7 @@ package com.example.questionplatform.controller;
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.Question;
 import com.example.questionplatform.model.User;
-import com.example.questionplatform.response.ErrorRes;
-import com.example.questionplatform.response.QuestionRes;
-import com.example.questionplatform.response.QuestionsRes;
-import com.example.questionplatform.response.Response;
+import com.example.questionplatform.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +33,15 @@ public class QuestionsController {
         if (question == null) {
             return new ErrorRes("Question not found");
         }
-        return new QuestionRes(question, database);
+        return new QuestionRes(question, database, null, false);
+    }
+
+    @GetMapping("/answered")
+    public Response getAnsweredQuestions(@RequestHeader("Authorization") String authHeader) {
+        User user = database.getUser(authHeader);
+        if (user == null)
+            return new ErrorRes("Unauthenticated");
+
+        return new GetAnsweredRes(user, database);
     }
 }

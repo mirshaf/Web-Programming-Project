@@ -1,5 +1,6 @@
 package com.example.questionplatform.controller;
 
+import com.example.questionplatform.model.Answer;
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.Question;
 import com.example.questionplatform.model.User;
@@ -32,16 +33,20 @@ public class AnswersController {
         }
 
         String correctAns = question.getCorrectOption();
+        Integer value = 0;
+        boolean is_correct = false;
         if (correctAns.equals(answerReq.getSelected_option())) {
-            Integer value = switch (question.getDifficulty_level()) {
+            value = switch (question.getDifficulty_level()) {
                 case easy -> 1;
                 case medium -> 2;
                 case hard -> 3;
             };
-            user.addAnsweredQuestion(question.getId(), value);
-            return new AnswerRes("Answer submitted successfully", correctAns, true);
+            is_correct = true;
         }
+        Answer answer = new Answer(question.getId(), user.getId(), answerReq.getSelected_option(), is_correct);
+        user.addAnsweredQuestion(question.getId(), value, answer.getId());
+        database.addAnswer(answer);
 
-        return new AnswerRes("Answer submitted successfully", correctAns, false);
+        return new AnswerRes("Answer submitted successfully", correctAns, is_correct);
     }
 }

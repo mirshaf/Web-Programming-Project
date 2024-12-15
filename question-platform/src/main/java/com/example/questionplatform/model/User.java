@@ -15,6 +15,7 @@ public class User {
     private int followings, followers;
     private List<Integer> followingIds;
     private List<Integer> answeredQuestionsIds;
+    private List<Integer> answerIds;
 
     public enum Role {
         designer,
@@ -42,18 +43,28 @@ public class User {
         this.followings = 0;
         this.followingIds = new ArrayList<>();
         this.answeredQuestionsIds = new ArrayList<>();
+        this.answerIds = new ArrayList<>();
     }
 
-    public boolean hasAnswered(Integer id) {
-        return this.answeredQuestionsIds.contains(id);
+    public List<Integer> getAnswerIds() {
+        return answerIds;
     }
 
-    public boolean addAnsweredQuestion(Integer id, Integer value) {
-        if (this.answeredQuestionsIds.contains(id)) {
+    public List<Integer> getAnsweredQuestionsIds() {
+        return answeredQuestionsIds;
+    }
+
+    public boolean hasAnswered(Integer questionId) {
+        return this.answeredQuestionsIds.contains(questionId);
+    }
+
+    public boolean addAnsweredQuestion(Integer questionId, Integer value, Integer answerId) {
+        if (this.answeredQuestionsIds.contains(questionId)) {
             return false;
         }
 
-        this.answeredQuestionsIds.add(id);
+        this.answeredQuestionsIds.add(questionId);
+        this.answerIds.add(answerId);
         this.points += value;
         return true;
     }

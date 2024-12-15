@@ -14,6 +14,7 @@ public class Database {
     private final Map<String, User> loggedInUsers = new HashMap<>();
     private final Map<Integer, Category> categories = new HashMap<>();
     private final Map<Integer, Question> questions = new HashMap<>();
+    private final Map<Integer, Answer> answers = new HashMap<>();
 
     public Database() {
         Question question1 = new Question("انقلاب کبیر ...؟", "انگلیس", "فرانسه", "اسپانیا", "چین", 2, Question.Difficulty_Level.easy, 1, 1);
@@ -33,6 +34,19 @@ public class Database {
         this.categories.put(category1.getId(), category1);
         this.categories.put(category2.getId(), category2);
         System.out.println("Database initialized...");
+    }
+
+    public boolean addAnswer(Answer answer) {
+        if (this.answers.containsKey(answer.getId())) {
+            return false;
+        }
+
+        this.answers.put(answer.getId(), answer);
+        return true;
+    }
+
+    public Answer getAnswerById(Integer id) {
+        return this.answers.get(id);
     }
 
     public User getUserByEmail(String email) {
