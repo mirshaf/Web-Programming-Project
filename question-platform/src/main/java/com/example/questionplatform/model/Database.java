@@ -12,6 +12,8 @@ import java.util.Map;
 public class Database {
     private final List<User> users = new ArrayList<>();
     private final Map<String, User> loggedInUsers = new HashMap<>();
+    private final Map<Integer, Category> categories = new HashMap<>();
+    private final Map<Integer, Question> questions = new HashMap<>();
 
     public User getUserByEmail(String email) {
         for(User user : users){
@@ -29,9 +31,6 @@ public class Database {
     }
 
     public String loginUser(User user) {
-//        Token token = new Token(String.valueOf(user.getId() * 37) + " " + LocalTime.now());
-//        loggedInUsers.put(token, user);
-//        return token.getToken();
         String jwtToken = JwtUtil.generateToken(user.getEmail());
         loggedInUsers.put(jwtToken, user);
         return jwtToken;
@@ -52,5 +51,31 @@ public class Database {
 
     public List<User> getUsers() {
         return users;
+    }
+
+    public Category getCategoryByName(String name) {
+        for (Category category : this.categories.values()) {
+            if (category.getName().equals(name))
+                return category;
+        }
+        return null;
+    }
+
+    public Category getCategoryById(Integer id) {
+        return this.categories.get(id);
+    }
+
+    public List<Question> getQuestions(String categoryName, String difficulty) {
+        Category category = (categoryName == null) ? null : getCategoryByName(categoryName);
+        List<Question> filtered_questions = new ArrayList<>();
+        for (Question q : this.questions.values()) {
+            if (category == null || q.getCategory_id().equals(category.getId())) {
+                if (difficulty == null || q.getDifficulty_level().toString().equals(difficulty)) {
+                    filtered_questions.add(q);
+                }
+            }
+        }
+
+        return filtered_questions;
     }
 }
