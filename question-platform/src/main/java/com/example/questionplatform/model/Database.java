@@ -3,10 +3,7 @@ package com.example.questionplatform.model;
 import com.example.questionplatform.util.JwtUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class Database {
@@ -122,6 +119,15 @@ public class Database {
         }
 
         return filtered_questions;
+    }
+
+    public Question getRandomQuestion() {
+        if (questions.size() == 0) {
+            return null;
+        }
+        Random random = new Random();
+        int id = random.nextInt(questions.size()) + 1; //todo: what if id doesn't start from 1
+        return this.questions.get(id);
     }
 
     public Question getQuestionById(Integer id) {

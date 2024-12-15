@@ -36,6 +36,19 @@ public class QuestionsController {
         return new QuestionRes(question, database, null, false);
     }
 
+    @GetMapping("/random")
+    public Response getRandomQuestion(@RequestHeader("Authorization") String authHeader){
+        User user = database.getUser(authHeader);
+        if (user == null)
+            return new ErrorRes("Unauthenticated");
+
+        Question question = database.getRandomQuestion();
+        if (question == null) {
+            return new MessageRes("No questions available");
+        }
+        return new QuestionRes(question, database, null, false);
+    }
+
     @GetMapping("/answered")
     public Response getAnsweredQuestions(@RequestHeader("Authorization") String authHeader) {
         User user = database.getUser(authHeader);
