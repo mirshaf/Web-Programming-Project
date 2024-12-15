@@ -3,46 +3,41 @@ package com.example.questionplatform.response;
 import com.example.questionplatform.model.User;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
-public class GetUsersRes implements Response {
-    List<UserRes> users;
+public class GetLeaderboardRes implements Response {
+    List<UserRes> leaderboard;
 
-    public GetUsersRes(List<User> users, User requester) {
-        this.users = new ArrayList<>();
-        for (User user :
-                users) {
-            this.users.add(new UserRes(user, requester));
+    public GetLeaderboardRes(List<User> users) {
+        this.leaderboard = new ArrayList<>();
+        users.sort(Comparator.comparingInt(User::getPoints).reversed());
+        for (int i = 0; i < users.size(); i++) {
+            this.leaderboard.add(new UserRes(users.get(i), i + 1));
         }
     }
 
-    public List<UserRes> getUsers() {
-        return users;
+    public List<UserRes> getLeaderboard() {
+        return leaderboard;
     }
 
     private class UserRes {
         private Integer id;
         private String username;
         private Integer points;
-        private String role;
         private String avatar_url;
-        private Boolean followed;
+        private Integer rank;
 
-        public UserRes(User user, User requester) {
+        public UserRes(User user, Integer rank) {
             this.id = user.getId();
             this.username = user.getUsername();
             this.points = user.getPoints();
-            this.role = user.getRole().toString();
             this.avatar_url = user.getAvatar_url();
-            this.followed = requester.follows(user.getId());
+            this.rank = rank;
         }
 
         public Integer getId() {
             return id;
-        }
-
-        public Boolean getFollowed() {
-            return followed;
         }
 
         public String getUsername() {
@@ -53,12 +48,12 @@ public class GetUsersRes implements Response {
             return points;
         }
 
-        public String getRole() {
-            return role;
-        }
-
         public String getAvatar_url() {
             return avatar_url;
+        }
+
+        public Integer getRank() {
+            return rank;
         }
     }
 }
