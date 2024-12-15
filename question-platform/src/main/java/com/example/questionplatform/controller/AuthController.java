@@ -6,10 +6,7 @@ import com.example.questionplatform.request.LoginReq;
 import com.example.questionplatform.request.RegisterReq;
 import com.example.questionplatform.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,6 +16,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public Response registerUser(@RequestBody RegisterReq registerReq) {
+        System.out.println("register");
         if (! registerReq.getPassword().equals(registerReq.getConfirmPassword())) {
             return new ErrorRes("Password and confirm password do not match");
         }
@@ -33,7 +31,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public Response loginUser(@RequestBody LoginReq loginReq){
-        System.out.println("login req");
+        System.out.println("login");
         User user = database.getUserByEmail(loginReq.getEmail());
         if (user == null) {
             return new ErrorRes("User not found");
@@ -43,6 +41,24 @@ public class AuthController {
             return new ErrorRes("Invalid email or password");
         }
 
-        return new LoginRes("Login successful", database.loginUser(user), user);
+        String jwtToken = database.loginUser(user);
+        return new LoginRes("Login successful", jwtToken, user);
+    }
+
+    @PostMapping("/logout")
+    public Response logoutUser(@RequestHeader("Authorization") String authHeader) {
+        System.out.println("logout");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return new ErrorRes("Authorization header is missing or invalid");
+        }
+
+        String jwtToken = authHeader.substring(7); // Remove "Bearer " prefix
+        System.out.println("token=" + jwtToken);
+        boolean isLoggedOut = database.logoutUser(jwtToken);
+        if (isLoggedOut) {
+            return new MessageRes("Logout successful");
+        } else {
+            return new ErrorRes("Invalid or expired token");
+        }
     }
 }

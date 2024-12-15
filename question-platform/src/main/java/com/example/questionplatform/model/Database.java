@@ -12,7 +12,7 @@ import java.util.Map;
 @Service
 public class Database {
     private final List<User> users = new ArrayList<>();
-    private final Map<Token, User> loggedInUsers = new HashMap<>();
+    private final Map<String, User> loggedInUsers = new HashMap<>();
 
     public User getUserByEmail(String email) {
         for(User user : users){
@@ -30,8 +30,15 @@ public class Database {
     }
 
     public String loginUser(User user) {
-        Token token = new Token(String.valueOf(user.getId() * 37) + " " + LocalTime.now());
-        loggedInUsers.put(token, user);
-        return token.getToken();
+//        Token token = new Token(String.valueOf(user.getId() * 37) + " " + LocalTime.now());
+//        loggedInUsers.put(token, user);
+//        return token.getToken();
+        String jwtToken = JwtUtil.generateToken(user.getEmail());
+        loggedInUsers.put(jwtToken, user);
+        return jwtToken;
+    }
+
+    public boolean logoutUser(String jwtToken) {
+        return loggedInUsers.remove(jwtToken) != null;
     }
 }
