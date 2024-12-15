@@ -22,6 +22,6 @@ public class LeaderboardController {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
-        return new GetLeaderboardRes(database.getUsers());
+        return new GetLeaderboardRes(database.getUsers(null));
     }
 }

@@ -37,7 +37,7 @@ public class LoginRes implements Response {
         this.user = user;
     }
 
-    private class UserLoginRes {
+    private class UserLoginRes { //todo: use UserRes2 instead
         private int id;
         private String username;
         private String email;

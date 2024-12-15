@@ -49,8 +49,15 @@ public class Database {
         return loggedInUsers.remove(jwtToken) != null;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<User> getUsers(String username) {
+        List<User> filteredUsers = new ArrayList<>();
+        for (User u :
+                users) {
+            if (username == null || u.getUsername().equals(username)) {
+                filteredUsers.add(u);
+            }
+        }
+        return filteredUsers;
     }
 
     public Category getCategoryByName(String name) {

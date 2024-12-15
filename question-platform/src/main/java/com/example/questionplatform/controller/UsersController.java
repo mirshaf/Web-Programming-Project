@@ -6,10 +6,7 @@ import com.example.questionplatform.response.ErrorRes;
 import com.example.questionplatform.response.GetUsersRes;
 import com.example.questionplatform.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -18,10 +15,11 @@ public class UsersController {
     Database database;
 
     @GetMapping()
-    public Response getUsers(@RequestHeader("Authorization") String authHeader) {
+    public Response getUsers(@RequestHeader("Authorization") String authHeader,
+                             @RequestParam(required = false) String query) {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
-        return new GetUsersRes(database.getUsers(), user);
+        return new GetUsersRes(database.getUsers(query), user);
     }
 }
