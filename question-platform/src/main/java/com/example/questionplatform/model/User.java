@@ -1,5 +1,8 @@
 package com.example.questionplatform.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
     static int idCounter = 1;
     private Integer id;
@@ -10,6 +13,7 @@ public class User {
     private int points;
     private String avatar_url;
     private int followings, followers;
+    private List<Integer> followingIds;
 
     public enum Role {
         designer,
@@ -35,6 +39,15 @@ public class User {
         this.avatar_url = avatar_url;
         this.followers = 0;
         this.followings = 0;
+        this.followingIds = new ArrayList<>();
+    }
+
+    public Boolean follows(Integer id) {
+        return this.followingIds.contains(id);
+    }
+
+    public List<Integer> getFollowingIds() {
+        return followingIds;
     }
 
     public Integer getId() {
