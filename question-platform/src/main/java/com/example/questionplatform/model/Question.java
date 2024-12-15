@@ -62,6 +62,16 @@ public class Question {
         return correct_answer;
     }
 
+    public String getCorrectOption() {
+        return switch (correct_answer) {
+            case 1 -> option1;
+            case 2 -> option2;
+            case 3 -> option3;
+            case 4 -> option4;
+            default -> null;
+        };
+    }
+
     public Difficulty_Level getDifficulty_level() {
         return difficulty_level;
     }

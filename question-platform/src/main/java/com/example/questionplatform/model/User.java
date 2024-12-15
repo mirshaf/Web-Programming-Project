@@ -14,6 +14,7 @@ public class User {
     private String avatar_url;
     private int followings, followers;
     private List<Integer> followingIds;
+    private List<Integer> answeredQuestionsIds;
 
     public enum Role {
         designer,
@@ -40,6 +41,21 @@ public class User {
         this.followers = 0;
         this.followings = 0;
         this.followingIds = new ArrayList<>();
+        this.answeredQuestionsIds = new ArrayList<>();
+    }
+
+    public boolean hasAnswered(Integer id) {
+        return this.answeredQuestionsIds.contains(id);
+    }
+
+    public boolean addAnsweredQuestion(Integer id, Integer value) {
+        if (this.answeredQuestionsIds.contains(id)) {
+            return false;
+        }
+
+        this.answeredQuestionsIds.add(id);
+        this.points += value;
+        return true;
     }
 
     public boolean addFollowing(Integer id) {
