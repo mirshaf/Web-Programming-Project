@@ -2,17 +2,22 @@ package com.example.questionplatform.model;
 
 public class User {
     static int idCounter = 1;
-    private int id;
+    private Integer id;
     private String username;
     private String password; //todo: hash
     private Role role;
     private String email;
     private int points;
     private String avatar_url;
+    private int followings, followers;
 
     public enum Role {
         designer,
         player
+    }
+
+    public boolean comparePassword(String password) {
+        return this.password.equals(password); //todo: use hash
     }
 
     public User(String username, String password, String role, String email, String avatar_url) {
@@ -28,9 +33,11 @@ public class User {
         this.email = email;
         this.points = 0;
         this.avatar_url = avatar_url;
+        this.followers = 0;
+        this.followings = 0;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -84,5 +91,21 @@ public class User {
 
     public void setAvatar_url(String avatar_url) {
         this.avatar_url = avatar_url;
+    }
+
+    public int getFollowings() {
+        return followings;
+    }
+
+    public void setFollowings(int followings) {
+        this.followings = followings;
+    }
+
+    public int getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(int followers) {
+        this.followers = followers;
     }
 }
