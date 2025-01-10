@@ -1,8 +1,11 @@
 package com.example.questionplatform.model;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class Category {
     static int idCounter = 1;
     private Integer id;
@@ -17,29 +20,5 @@ public class Category {
         this.description = description;
         this.created_by = created_by;
         this.questions = new ArrayList<>();
-    }
-
-    public static int getIdCounter() {
-        return idCounter;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Integer getCreated_by() {
-        return created_by;
-    }
-
-    public List<Question> getQuestions() {
-        return questions;
     }
 }

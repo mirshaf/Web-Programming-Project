@@ -4,7 +4,6 @@ import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.User;
 import com.example.questionplatform.response.DashboardRes;
 import com.example.questionplatform.response.ErrorRes;
-import com.example.questionplatform.response.QuestionsRes;
 import com.example.questionplatform.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

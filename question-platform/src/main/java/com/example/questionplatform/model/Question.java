@@ -1,8 +1,11 @@
 package com.example.questionplatform.model;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class Question {
     static int idCounter = 1;
     private Integer id;
@@ -34,34 +37,6 @@ public class Question {
         hard
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public String getOption1() {
-        return option1;
-    }
-
-    public String getOption2() {
-        return option2;
-    }
-
-    public String getOption3() {
-        return option3;
-    }
-
-    public String getOption4() {
-        return option4;
-    }
-
-    public int getCorrect_answer() {
-        return correct_answer;
-    }
-
     public String getCorrectOption() {
         return switch (correct_answer) {
             case 1 -> option1;
@@ -70,21 +45,5 @@ public class Question {
             case 4 -> option4;
             default -> null;
         };
-    }
-
-    public Difficulty_Level getDifficulty_level() {
-        return difficulty_level;
-    }
-
-    public Integer getCreated_by() {
-        return created_by;
-    }
-
-    public Integer getCategory_id() {
-        return category_id;
-    }
-
-    public List<Integer> getRelated_question_ids() {
-        return related_question_ids;
     }
 }

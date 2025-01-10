@@ -1,5 +1,8 @@
 package com.example.questionplatform.model;
 
+import lombok.Getter;
+
+@Getter
 public class Answer {
     static Integer idCounter = 1;
     private Integer id;
@@ -14,29 +17,5 @@ public class Answer {
         this.player_id = player_id;
         this.selected_option = selected_option;
         this.is_correct = is_correct;
-    }
-
-    public static Integer getIdCounter() {
-        return idCounter;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public Integer getQuestion_id() {
-        return question_id;
-    }
-
-    public Integer getPlayer_id() {
-        return player_id;
-    }
-
-    public String getSelected_option() {
-        return selected_option;
-    }
-
-    public Boolean getIs_correct() {
-        return is_correct;
     }
 }

@@ -1,8 +1,11 @@
 package com.example.questionplatform.model;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class User {
     static int idCounter = 1;
     private Integer id;
@@ -44,14 +47,6 @@ public class User {
         this.followingIds = new ArrayList<>();
         this.answeredQuestionsIds = new ArrayList<>();
         this.answerIds = new ArrayList<>();
-    }
-
-    public List<Integer> getAnswerIds() {
-        return answerIds;
-    }
-
-    public List<Integer> getAnsweredQuestionsIds() {
-        return answeredQuestionsIds;
     }
 
     public boolean hasAnswered(Integer questionId) {
@@ -98,45 +93,5 @@ public class User {
 
     public Boolean follows(Integer id) {
         return this.followingIds.contains(id);
-    }
-
-    public List<Integer> getFollowingIds() {
-        return followingIds;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public int getPoints() {
-        return points;
-    }
-
-    public String getAvatar_url() {
-        return avatar_url;
-    }
-
-    public int getFollowings() {
-        return followings;
-    }
-
-    public int getFollowers() {
-        return followers;
     }
 }
