@@ -1,6 +1,9 @@
 package com.example.questionplatform.model;
 
+import com.example.questionplatform.repository.CategoryRepository;
+import com.example.questionplatform.repository.QuestionRepository;
 import com.example.questionplatform.repository.UserRepository;
+import com.example.questionplatform.response.CategoryDTO2;
 import com.example.questionplatform.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,29 +14,65 @@ import java.util.*;
 public class Database {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private QuestionRepository questionRepository;
     private final Map<String, User> loggedInUsers = new HashMap<>();
-    private final Map<Integer, Category> categories = new HashMap<>();
-    private final Map<Integer, Question> questions = new HashMap<>();
     private final Map<Integer, Answer> answers = new HashMap<>();
 
     public Database() {
+//        initializeDatabase();
+        System.out.println("Database initialized...");
+    }
+
+    private void initializeDatabase() {
         Question question1 = new Question("انقلاب کبیر ...؟", "انگلیس", "فرانسه", "اسپانیا", "چین", 2, Question.Difficulty_Level.easy, 1, 1);
         Question question2 = new Question("کتاب The Art of War اثر کیست؟", "Johnny Depp", "Johnny Shallow", "Johnny Deep", "Sun Tzu", 4, Question.Difficulty_Level.hard, 2, 1);
         List<Question> questions1 = new ArrayList<>();
         questions1.add(question1);
         questions1.add(question2);
         Category category1 = new Category("تاریخ", "سوالات تاریخی جالب", 1, questions1);
+
         Question question3 = new Question("اینجا کجاس؟", "زمین", "آسیا", "خونه", "دره", 1, Question.Difficulty_Level.medium, 1, 2);
         List<Question> questions2 = new ArrayList<>();
         questions2.add(question3);
         Category category2 = new Category("جغرافیا", "جغرافیا باحاله (الکی)", 2, questions2);
 
-        this.questions.put(question1.getId(), question1);
-        this.questions.put(question2.getId(), question2);
-        this.questions.put(question3.getId(), question3);
-        this.categories.put(category1.getId(), category1);
-        this.categories.put(category2.getId(), category2);
-        System.out.println("Database initialized...");
+        questions1.forEach(questionRepository::save);
+        questions2.forEach(questionRepository::save);
+        categoryRepository.save(category1);
+        categoryRepository.save(category2);
+    }
+
+    public List<CategoryDTO2> getAllCategories() {
+        List<CategoryDTO2> categoryDTOs = new ArrayList<>();
+        for (Category category : categoryRepository.findAll()) {
+            CategoryDTO2 dto = new CategoryDTO2(
+                    category.getId(),
+                    category.getName(),
+                    category.getDescription(),
+                    category.getQuestions().size()
+            );
+            categoryDTOs.add(dto);
+        }
+        return categoryDTOs;
+    }
+
+    public List<CategoryDTO2> getCategoriesByUser(Integer userId) {
+        List<CategoryDTO2> categories = new ArrayList<>();
+        for (Category category : categoryRepository.findAll()) {
+            if (category.getCreated_by().equals(userId)) {
+                CategoryDTO2 dto = new CategoryDTO2(
+                        category.getId(),
+                        category.getName(),
+                        category.getDescription(),
+                        category.getQuestions().size()
+                );
+                categories.add(dto);
+            }
+        }
+        return categories;
     }
 
     public boolean addAnswer(Answer answer) {
@@ -60,7 +99,6 @@ public class Database {
         user.setRole(role);
         user.setEmail(email);
         user.setAvatar_url(avatar_url);
-//        users.put(user.getId(), user);
         return userRepository.save(user);
     }
 
@@ -84,12 +122,6 @@ public class Database {
     }
 
     public List<User> getUsers(String username) {
-//        for (User u :
-//                users.values()) {
-//            if (username == null || u.getUsername().equals(username)) {
-//                filteredUsers.add(u);
-//            }
-//        }
         if (username == null) {
             return userRepository.findAll();
         }
@@ -103,21 +135,20 @@ public class Database {
     }
 
     public Category getCategoryByName(String name) {
-        for (Category category : this.categories.values()) {
-            if (category.getName().equals(name))
-                return category;
-        }
-        return null;
+        return categoryRepository.findAll().stream()
+                .filter(category -> category.getName().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
     public Category getCategoryById(Integer id) {
-        return this.categories.get(id);
+        return categoryRepository.findById(id).orElse(null);
     }
 
     public List<Question> getQuestions(String categoryName, String difficulty) {
         Category category = (categoryName == null) ? null : getCategoryByName(categoryName);
         List<Question> filtered_questions = new ArrayList<>();
-        for (Question q : this.questions.values()) {
+        for (Question q : questionRepository.findAll()) {
             if (category == null || q.getCategory_id().equals(category.getId())) {
                 if (difficulty == null || q.getDifficulty_level().toString().equals(difficulty)) {
                     filtered_questions.add(q);
@@ -129,15 +160,50 @@ public class Database {
     }
 
     public Question getRandomQuestion() {
-        if (questions.size() == 0) {
+        List<Question> questions = questionRepository.findAll();
+        if (questions.isEmpty()) {
             return null;
         }
         Random random = new Random();
-        int id = random.nextInt(questions.size()) + 1; //todo: what if id doesn't start from 1
-        return this.questions.get(id);
+        return questions.get(random.nextInt(questions.size())); // todo: what if id doesn't start from 1
     }
 
     public Question getQuestionById(Integer id) {
-        return questions.get(id);
+        return questionRepository.findById(id).orElse(null);
+    }
+
+    public Category addCategory(String name, String description, Integer created_by) {
+        Category category = new Category();
+        category.setName(name);
+        category.setDescription(description);
+        category.setCreated_by(created_by);
+        return categoryRepository.save(category);
+    }
+
+    public Boolean deleteCategory(Integer id) {
+        Category category = categoryRepository.findById(id).orElse(null);
+        if (category == null) {
+            return null;
+        }
+        if (! category.getQuestions().isEmpty()) {
+            return false;
+        }
+        categoryRepository.delete(category);
+        return true;
+    }
+
+    public Category editCategory(Integer id, String name, String description, Integer created_by) {
+        Category category = categoryRepository.findById(id).orElse(null);
+        if (category == null) {
+            return null;
+        }
+        category.setName(name);
+        category.setDescription(description);
+        category.setCreated_by(created_by);
+        return categoryRepository.save(category);
+    }
+
+    public Category getCategory(Integer id) {
+        return categoryRepository.findById(id).orElse(null);
     }
 }
