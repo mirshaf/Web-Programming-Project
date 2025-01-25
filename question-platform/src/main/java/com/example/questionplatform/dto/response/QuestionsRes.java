@@ -1,4 +1,4 @@
-package com.example.questionplatform.response;
+package com.example.questionplatform.dto.response;
 
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.Question;

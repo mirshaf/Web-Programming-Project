@@ -1,4 +1,4 @@
-package com.example.questionplatform.request;
+package com.example.questionplatform.dto.request;
 
 import lombok.Data;
 

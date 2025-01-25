@@ -1,8 +1,8 @@
 package com.example.questionplatform.controller;
 
+import com.example.questionplatform.dto.response.*;
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.User;
-import com.example.questionplatform.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

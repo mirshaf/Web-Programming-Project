@@ -1,4 +1,4 @@
-package com.example.questionplatform.response;
+package com.example.questionplatform.dto.response;
 
 import lombok.Getter;
 

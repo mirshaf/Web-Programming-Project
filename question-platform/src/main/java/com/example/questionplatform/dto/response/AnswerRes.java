@@ -1,4 +1,4 @@
-package com.example.questionplatform.response;
+package com.example.questionplatform.dto.response;
 
 public class AnswerRes implements Response {
     private String message;

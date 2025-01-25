@@ -1,10 +1,10 @@
 package com.example.questionplatform.controller;
 
+import com.example.questionplatform.dto.response.*;
 import com.example.questionplatform.model.Category;
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.User;
-import com.example.questionplatform.request.CategoryReq;
-import com.example.questionplatform.response.*;
+import com.example.questionplatform.dto.request.CategoryReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

@@ -4,10 +4,10 @@ import com.example.questionplatform.model.Answer;
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.Question;
 import com.example.questionplatform.model.User;
-import com.example.questionplatform.request.AnswerReq;
-import com.example.questionplatform.response.AnswerRes;
-import com.example.questionplatform.response.ErrorRes;
-import com.example.questionplatform.response.Response;
+import com.example.questionplatform.dto.request.AnswerReq;
+import com.example.questionplatform.dto.response.AnswerRes;
+import com.example.questionplatform.dto.response.ErrorRes;
+import com.example.questionplatform.dto.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

@@ -3,7 +3,7 @@ package com.example.questionplatform.model;
 import com.example.questionplatform.repository.CategoryRepository;
 import com.example.questionplatform.repository.QuestionRepository;
 import com.example.questionplatform.repository.UserRepository;
-import com.example.questionplatform.response.CategoryDTO2;
+import com.example.questionplatform.dto.response.CategoryDTO2;
 import com.example.questionplatform.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,71 +22,10 @@ public class Database {
     private final Map<Integer, Answer> answers = new HashMap<>();
 
     public Database() {
-//        initializeDatabase();
-        System.out.println("Database initialized...");
+
     }
 
-    private void initializeDatabase() {
-        Question question1 = new Question("انقلاب کبیر ...؟", "انگلیس", "فرانسه", "اسپانیا", "چین", 2, Question.Difficulty_Level.easy, 1, 1);
-        Question question2 = new Question("کتاب The Art of War اثر کیست؟", "Johnny Depp", "Johnny Shallow", "Johnny Deep", "Sun Tzu", 4, Question.Difficulty_Level.hard, 2, 1);
-        List<Question> questions1 = new ArrayList<>();
-        questions1.add(question1);
-        questions1.add(question2);
-        Category category1 = new Category("تاریخ", "سوالات تاریخی جالب", 1, questions1);
-
-        Question question3 = new Question("اینجا کجاس؟", "زمین", "آسیا", "خونه", "دره", 1, Question.Difficulty_Level.medium, 1, 2);
-        List<Question> questions2 = new ArrayList<>();
-        questions2.add(question3);
-        Category category2 = new Category("جغرافیا", "جغرافیا باحاله (الکی)", 2, questions2);
-
-        questions1.forEach(questionRepository::save);
-        questions2.forEach(questionRepository::save);
-        categoryRepository.save(category1);
-        categoryRepository.save(category2);
-    }
-
-    public List<CategoryDTO2> getAllCategories() {
-        List<CategoryDTO2> categoryDTOs = new ArrayList<>();
-        for (Category category : categoryRepository.findAll()) {
-            CategoryDTO2 dto = new CategoryDTO2(
-                    category.getId(),
-                    category.getName(),
-                    category.getDescription(),
-                    category.getQuestions().size()
-            );
-            categoryDTOs.add(dto);
-        }
-        return categoryDTOs;
-    }
-
-    public List<CategoryDTO2> getCategoriesByUser(Integer userId) {
-        List<CategoryDTO2> categories = new ArrayList<>();
-        for (Category category : categoryRepository.findAll()) {
-            if (category.getCreated_by().equals(userId)) {
-                CategoryDTO2 dto = new CategoryDTO2(
-                        category.getId(),
-                        category.getName(),
-                        category.getDescription(),
-                        category.getQuestions().size()
-                );
-                categories.add(dto);
-            }
-        }
-        return categories;
-    }
-
-    public boolean addAnswer(Answer answer) {
-        if (this.answers.containsKey(answer.getId())) {
-            return false;
-        }
-
-        this.answers.put(answer.getId(), answer);
-        return true;
-    }
-
-    public Answer getAnswerById(Integer id) {
-        return this.answers.get(id);
-    }
+    // User
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -134,16 +73,7 @@ public class Database {
         return userRepository.findById(id).orElse(null);
     }
 
-    public Category getCategoryByName(String name) {
-        return categoryRepository.findAll().stream()
-                .filter(category -> category.getName().equals(name))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public Category getCategoryById(Integer id) {
-        return categoryRepository.findById(id).orElse(null);
-    }
+    // Question
 
     public List<Question> getQuestions(String categoryName, String difficulty) {
         Category category = (categoryName == null) ? null : getCategoryByName(categoryName);
@@ -171,6 +101,8 @@ public class Database {
     public Question getQuestionById(Integer id) {
         return questionRepository.findById(id).orElse(null);
     }
+
+    // Category
 
     public Category addCategory(String name, String description, Integer created_by) {
         Category category = new Category();
@@ -205,5 +137,61 @@ public class Database {
 
     public Category getCategory(Integer id) {
         return categoryRepository.findById(id).orElse(null);
+    }
+
+    public Category getCategoryByName(String name) {
+        return categoryRepository.findAll().stream()
+                .filter(category -> category.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Category getCategoryById(Integer id) {
+        return categoryRepository.findById(id).orElse(null);
+    }
+
+    public List<CategoryDTO2> getAllCategories() {
+        List<CategoryDTO2> categoryDTOs = new ArrayList<>();
+        for (Category category : categoryRepository.findAll()) {
+            CategoryDTO2 dto = new CategoryDTO2(
+                    category.getId(),
+                    category.getName(),
+                    category.getDescription(),
+                    category.getQuestions().size()
+            );
+            categoryDTOs.add(dto);
+        }
+        return categoryDTOs;
+    }
+
+    public List<CategoryDTO2> getCategoriesByUser(Integer userId) {
+        List<CategoryDTO2> categories = new ArrayList<>();
+        for (Category category : categoryRepository.findAll()) {
+            if (category.getCreated_by().equals(userId)) {
+                CategoryDTO2 dto = new CategoryDTO2(
+                        category.getId(),
+                        category.getName(),
+                        category.getDescription(),
+                        category.getQuestions().size()
+                );
+                categories.add(dto);
+            }
+        }
+        return categories;
+    }
+
+    // Answer
+
+    public boolean addAnswer(Answer answer) {
+        if (this.answers.containsKey(answer.getId())) {
+            return false;
+        }
+
+        this.answers.put(answer.getId(), answer);
+        return true;
+    }
+
+    public Answer getAnswerById(Integer id) {
+        return this.answers.get(id);
     }
 }
