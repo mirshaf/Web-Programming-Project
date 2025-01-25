@@ -1,13 +1,16 @@
 package com.example.questionplatform.model;
 
+import com.example.questionplatform.repository.UserRepository;
 import com.example.questionplatform.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 public class Database {
-    private final Map<Integer, User> users = new HashMap<>();
+    @Autowired
+    private UserRepository userRepository;
     private final Map<String, User> loggedInUsers = new HashMap<>();
     private final Map<Integer, Category> categories = new HashMap<>();
     private final Map<Integer, Question> questions = new HashMap<>();
@@ -47,18 +50,18 @@ public class Database {
     }
 
     public User getUserByEmail(String email) {
-        for(User user : users.values()){
-            if (user.getEmail().equals(email)){
-                return user;
-            }
-        }
-        return null;
+        return userRepository.findByEmail(email);
     }
 
     public User registerUser(String username, String email, String password, String avatar_url, String role) {
-        User user = new User(username, password, role, email, avatar_url);
-        users.put(user.getId(), user);
-        return user;
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setRole(role);
+        user.setEmail(email);
+        user.setAvatar_url(avatar_url);
+//        users.put(user.getId(), user);
+        return userRepository.save(user);
     }
 
     public String loginUser(User user) {
@@ -81,18 +84,22 @@ public class Database {
     }
 
     public List<User> getUsers(String username) {
-        List<User> filteredUsers = new ArrayList<>();
-        for (User u :
-                users.values()) {
-            if (username == null || u.getUsername().equals(username)) {
-                filteredUsers.add(u);
-            }
+//        for (User u :
+//                users.values()) {
+//            if (username == null || u.getUsername().equals(username)) {
+//                filteredUsers.add(u);
+//            }
+//        }
+        if (username == null) {
+            return userRepository.findAll();
         }
-        return filteredUsers;
+        return userRepository.findAll().stream()
+                .filter(u -> u.getUsername().equals(username))
+                .toList();
     }
 
     public User getUserById(Integer id) {
-        return users.get(id);
+        return userRepository.findById(id).orElse(null);
     }
 
     public Category getCategoryByName(String name) {

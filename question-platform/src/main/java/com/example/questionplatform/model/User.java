@@ -1,52 +1,33 @@
 package com.example.questionplatform.model;
 
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
+@Entity
+@Data
 public class User {
-    static int idCounter = 1;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String username;
     private String password; //todo: hash
-    private Role role;
+    private String role;
     private String email;
-    private int points;
+    private int points = 0;
     private String avatar_url;
-    private int followings, followers;
-    private List<Integer> followingIds;
-    private List<Integer> answeredQuestionsIds;
-    private List<Integer> answerIds;
-
-    public enum Role {
-        designer,
-        player
-    }
+    private int followings = 0, followers = 0;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Integer> followingIds = new ArrayList<>();
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Integer> answeredQuestionsIds = new ArrayList<>();
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Integer> answerIds = new ArrayList<>();
 
     public boolean comparePassword(String password) {
         return this.password.equals(password); //todo: use hash
-    }
-
-    public User(String username, String password, String role, String email, String avatar_url) {
-        this.id = idCounter++;
-        this.username = username;
-        this.password = password;
-        switch (role) {
-            case "designer" -> this.role = Role.designer;
-            case "player" -> this.role = Role.player;
-            default -> {
-            } //todo
-        }
-        this.email = email;
-        this.points = 0;
-        this.avatar_url = avatar_url;
-        this.followers = 0;
-        this.followings = 0;
-        this.followingIds = new ArrayList<>();
-        this.answeredQuestionsIds = new ArrayList<>();
-        this.answerIds = new ArrayList<>();
     }
 
     public boolean hasAnswered(Integer questionId) {
