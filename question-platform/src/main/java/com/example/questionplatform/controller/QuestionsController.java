@@ -1,5 +1,6 @@
 package com.example.questionplatform.controller;
 
+import com.example.questionplatform.dto.request.QuestionDTO;
 import com.example.questionplatform.dto.response.*;
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.Question;
@@ -56,5 +57,59 @@ public class QuestionsController {
             return new ErrorRes("Unauthenticated");
 
         return new GetAnsweredRes(user, database);
+    }
+
+    @PostMapping()
+    public Response addQuestion(@RequestHeader("Authorization") String authHeader,
+                                @RequestBody QuestionDTO questionDTO) {
+        User user = database.getUser(authHeader);
+        if (user == null)
+            return new ErrorRes("Unauthenticated");
+
+        QuestionTextDTO question = database.createQuestion(questionDTO);
+        if (question == null) {
+            return new ErrorRes("Category not found.");
+        }
+        return new AddQuestionRes("Question created successfully", question);
+    }
+
+    @PutMapping("/{id}")
+    public Response editQuestion(@RequestHeader("Authorization") String authHeader,
+                                 @RequestBody QuestionDTO questionDTO,
+                                 @PathVariable("id") Integer id) {
+        User user = database.getUser(authHeader);
+        if (user == null)
+            return new ErrorRes("Unauthenticated");
+
+        QuestionTextDTO question = database.editQuestion(id, questionDTO);
+        if (question == null) {
+            return new ErrorRes("Question or category not found.");
+        }
+        return new AddQuestionRes("Question updated successfully", question);
+    }
+
+    @DeleteMapping("/{id}")
+    public Response editQuestion(@RequestHeader("Authorization") String authHeader,
+                                 @PathVariable("id") Integer id) {
+        User user = database.getUser(authHeader);
+        if (user == null)
+            return new ErrorRes("Unauthenticated");
+
+        Boolean result = database.deleteQuestion(id);
+        if (result == null) {
+            return new ErrorRes("Question not found");
+        } else if (!result) {
+            return new ErrorRes("Question cannot be deleted as it is referenced by other questions");
+        }
+        return new MessageRes("Question deleted successfully");
+    }
+
+    @GetMapping("/my")
+    public Response getMyQuestions(@RequestHeader("Authorization") String authHeader) {
+        User user = database.getUser(authHeader);
+        if (user == null)
+            return new ErrorRes("Unauthenticated");
+
+        return new QuestionsDTO(database.getQuestionsByUser(user.getId()));
     }
 }
