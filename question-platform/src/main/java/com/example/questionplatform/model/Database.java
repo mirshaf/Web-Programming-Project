@@ -1,5 +1,8 @@
 package com.example.questionplatform.model;
 
+import com.example.questionplatform.dto.request.QuestionDTO;
+import com.example.questionplatform.dto.response.QuestionSummaryDTO;
+import com.example.questionplatform.dto.response.QuestionTextDTO;
 import com.example.questionplatform.repository.CategoryRepository;
 import com.example.questionplatform.repository.QuestionRepository;
 import com.example.questionplatform.repository.UserRepository;
@@ -74,6 +77,113 @@ public class Database {
     }
 
     // Question
+
+    public QuestionTextDTO createQuestion(QuestionDTO questionDTO) {
+        Category category = categoryRepository.findById(questionDTO.getCategory_id()).orElse(null);
+        if (category == null) {
+            return null;
+        }
+
+        Question question = new Question(
+                questionDTO.getText(),
+                questionDTO.getOption1(),
+                questionDTO.getOption2(),
+                questionDTO.getOption3(),
+                questionDTO.getOption4(),
+                questionDTO.getCorrect_answer(),
+                questionDTO.getDifficulty_level(),
+                questionDTO.getCreated_by(),
+                questionDTO.getCategory_id()
+        );
+        question.setRelated_question_ids(questionDTO.getRelated_question_ids());
+        question = questionRepository.save(question);
+
+        // Update the corresponding category
+        category.getQuestions().add(question);
+        categoryRepository.save(category);
+
+        return new QuestionTextDTO(question.getId(), questionDTO.getText());
+    }
+
+    public QuestionTextDTO editQuestion(Integer id, QuestionDTO questionDTO) {
+        Question question = questionRepository.findById(id).orElse(null);
+        if (question == null) {
+            return null;
+        }
+
+        Category category = categoryRepository.findById(questionDTO.getCategory_id()).orElse(null);
+        if (category == null) {
+            return null;
+        }
+
+        question.setEverything(
+                questionDTO.getText(),
+                questionDTO.getOption1(),
+                questionDTO.getOption2(),
+                questionDTO.getOption3(),
+                questionDTO.getOption4(),
+                questionDTO.getCorrect_answer(),
+                questionDTO.getDifficulty_level(),
+                questionDTO.getCreated_by(),
+                questionDTO.getCategory_id()
+        );
+        question.setRelated_question_ids(questionDTO.getRelated_question_ids());
+        question = questionRepository.save(question);
+
+        // Update the corresponding category
+        categoryRepository.save(category);
+
+        return new QuestionTextDTO(question.getId(), questionDTO.getText());
+    }
+
+    // Method to get all questions created by a user
+    public List<QuestionSummaryDTO> getQuestionsByUser(Integer userId) {
+        List<QuestionSummaryDTO> questionSummaryDTOs = new ArrayList<>();
+        List<Question> questions = questionRepository.findAll();
+        for (Question question : questions) {
+            if (question.getCreated_by().equals(userId)) {
+                Category category = categoryRepository.findById(question.getCategory_id()).orElse(null);
+                String categoryName = category != null ? category.getName() : "Unknown";
+                QuestionSummaryDTO dto = new QuestionSummaryDTO(
+                        question.getId(),
+                        question.getText(),
+                        categoryName,
+                        question.getDifficulty_level().toString()
+                );
+                questionSummaryDTOs.add(dto);
+            }
+        }
+        return questionSummaryDTOs;
+    }
+
+    public List<QuestionSummaryDTO> getAllQuestions() {
+        List<QuestionSummaryDTO> questionSummaryDTOs = new ArrayList<>();
+        List<Question> questions = questionRepository.findAll();
+        for (Question question : questions) {
+            Category category = categoryRepository.findById(question.getCategory_id()).orElse(null);
+            String categoryName = category != null ? category.getName() : "Unknown";
+            QuestionSummaryDTO dto = new QuestionSummaryDTO(
+                    question.getId(),
+                    question.getText(),
+                    categoryName,
+                    question.getDifficulty_level().toString()
+            );
+            questionSummaryDTOs.add(dto);
+        }
+        return questionSummaryDTOs;
+    }
+
+    public Boolean deleteQuestion(Integer id) {
+        Question question = questionRepository.findById(id).orElse(null);
+        if (question == null) {
+            return null;
+        } // todo: Question cannot be deleted as it is referenced by other questions
+        Category category = categoryRepository.findById(question.getCategory_id()).orElseThrow();
+        category.getQuestions().remove(question);
+        categoryRepository.save(category);
+        questionRepository.delete(question);
+        return true;
+    }
 
     public List<Question> getQuestions(String categoryName, String difficulty) {
         Category category = (categoryName == null) ? null : getCategoryByName(categoryName);

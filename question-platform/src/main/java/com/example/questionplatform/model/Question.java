@@ -40,6 +40,18 @@ public class Question {
         this.category_id = category_id;
     }
 
+    public void setEverything(String text, String option1, String option2, String option3, String option4, int correct_answer, Difficulty_Level difficulty_level, Integer created_by, Integer category_id) {
+        this.text = text;
+        this.option1 = option1;
+        this.option2 = option2;
+        this.option3 = option3;
+        this.option4 = option4;
+        this.correct_answer = correct_answer;
+        this.difficulty_level = difficulty_level;
+        this.created_by = created_by;
+        this.category_id = category_id;
+    }
+
     public enum Difficulty_Level {
         easy,
         medium,
