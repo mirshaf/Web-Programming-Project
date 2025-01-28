@@ -1,11 +1,17 @@
 package com.example.questionplatform.model;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -60,10 +66,10 @@ public class Question {
 
     public String getCorrectOption() {
         return switch (correct_answer) {
-            case 1 -> option1;
-            case 2 -> option2;
-            case 3 -> option3;
-            case 4 -> option4;
+            case 1 -> "option1";
+            case 2 -> "option2";
+            case 3 -> "option3";
+            case 4 -> "option4";
             default -> null;
         };
     }

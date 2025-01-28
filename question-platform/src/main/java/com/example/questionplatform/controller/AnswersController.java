@@ -1,15 +1,20 @@
 package com.example.questionplatform.controller;
 
-import com.example.questionplatform.model.Answer;
-import com.example.questionplatform.model.Database;
-import com.example.questionplatform.model.Question;
-import com.example.questionplatform.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.questionplatform.dto.request.AnswerReq;
 import com.example.questionplatform.dto.response.AnswerRes;
 import com.example.questionplatform.dto.response.ErrorRes;
 import com.example.questionplatform.dto.response.Response;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import com.example.questionplatform.model.Answer;
+import com.example.questionplatform.model.Database;
+import com.example.questionplatform.model.Question;
+import com.example.questionplatform.model.User;
 
 @RestController
 @RequestMapping("/api/answers")
