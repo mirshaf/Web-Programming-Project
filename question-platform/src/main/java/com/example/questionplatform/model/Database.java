@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,30 +88,49 @@ public class Database {
     // Question
 
     public QuestionTextDTO createQuestion(QuestionDTO questionDTO) {
-        Category category = categoryRepository.findById(questionDTO.getCategory_id()).orElse(null);
-        if (category == null) {
+        if (questionDTO.getText() == null || questionDTO.getText().trim().isEmpty() ||
+            questionDTO.getOption1() == null || questionDTO.getOption1().trim().isEmpty() ||
+            questionDTO.getOption2() == null || questionDTO.getOption2().trim().isEmpty() ||
+            questionDTO.getOption3() == null || questionDTO.getOption3().trim().isEmpty() ||
+            questionDTO.getOption4() == null || questionDTO.getOption4().trim().isEmpty() ||
+            questionDTO.getCategory() == null ||
+            questionDTO.getDifficulty_level() == null ||
+            questionDTO.getCreated_by() == null) {
             return null;
         }
 
+        // Find category by name
+        Category category = getCategoryByName(questionDTO.getCategory());
+        if (category == null) {
+            // If category doesn't exist, create it
+            category = addCategory(questionDTO.getCategory(), "", questionDTO.getCreated_by());
+        }
+
         Question question = new Question(
-                questionDTO.getText(),
-                questionDTO.getOption1(),
-                questionDTO.getOption2(),
-                questionDTO.getOption3(),
-                questionDTO.getOption4(),
+                questionDTO.getText().trim(),
+                questionDTO.getOption1().trim(),
+                questionDTO.getOption2().trim(),
+                questionDTO.getOption3().trim(),
+                questionDTO.getOption4().trim(),
                 questionDTO.getCorrect_answer(),
                 questionDTO.getDifficulty_level(),
                 questionDTO.getCreated_by(),
-                questionDTO.getCategory_id()
+                category.getId()
         );
-        question.setRelated_question_ids(questionDTO.getRelated_question_ids());
-        question = questionRepository.save(question);
 
-        // Update the corresponding category
-        category.getQuestions().add(question);
-        categoryRepository.save(category);
+        if (questionDTO.getRelated_question_ids() != null) {
+            question.setRelated_question_ids(questionDTO.getRelated_question_ids());
+        }
 
-        return new QuestionTextDTO(question.getId(), questionDTO.getText());
+        try {
+            question = questionRepository.save(question);
+            // Update the corresponding category
+            category.getQuestions().add(question);
+            categoryRepository.save(category);
+            return new QuestionTextDTO(question.getId(), questionDTO.getText());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public QuestionTextDTO editQuestion(Integer id, QuestionDTO questionDTO) {
@@ -119,9 +139,11 @@ public class Database {
             return null;
         }
 
-        Category category = categoryRepository.findById(questionDTO.getCategory_id()).orElse(null);
+        // Find category by name
+        Category category = getCategoryByName(questionDTO.getCategory());
         if (category == null) {
-            return null;
+            // If category doesn't exist, create it
+            category = addCategory(questionDTO.getCategory(), "", questionDTO.getCreated_by());
         }
 
         question.setEverything(
@@ -133,7 +155,7 @@ public class Database {
                 questionDTO.getCorrect_answer(),
                 questionDTO.getDifficulty_level(),
                 questionDTO.getCreated_by(),
-                questionDTO.getCategory_id()
+                category.getId()
         );
         question.setRelated_question_ids(questionDTO.getRelated_question_ids());
         question = questionRepository.save(question);
@@ -194,9 +216,15 @@ public class Database {
         return true;
     }
 
-    public List<Question> getQuestions(String categoryName, String difficulty) {
+    public List<Question> getQuestions(String categoryName, String difficulty, User user) {
         List<Question> questions = questionRepository.findAll();
+        List<Answer> userAnswers = answerRepository.findByPlayerId(user.getId());
+        Set<Integer> answeredQuestionIds = userAnswers.stream()
+            .map(Answer::getQuestion_id)
+            .collect(Collectors.toSet());
+
         return questions.stream()
+            .filter(q -> !answeredQuestionIds.contains(q.getId())) // Filter out answered questions
             .filter(q -> categoryName == null || 
                 getCategoryById(q.getCategory_id()).getName().equals(categoryName))
             .filter(q -> difficulty == null || 

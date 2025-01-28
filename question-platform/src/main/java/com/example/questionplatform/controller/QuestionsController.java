@@ -39,7 +39,7 @@ public class QuestionsController {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
-        return new QuestionsRes(database.getQuestions(category, difficulty), database);
+        return new QuestionsRes(database.getQuestions(category, difficulty, user), database);
     }
 
     @GetMapping("/{id}")
@@ -80,17 +80,25 @@ public class QuestionsController {
     @PostMapping()
     public Response addQuestion(@RequestHeader("Authorization") String authHeader,
                                 @RequestBody QuestionDTO questionDTO) {
-        User user = database.getUser(authHeader);
-        if (user == null)
-            return new ErrorRes("Unauthenticated");
+        try {
+            User user = database.getUser(authHeader);
+            if (user == null)
+                return new ErrorRes("Unauthenticated");
 
-        questionDTO.setCreated_by(user.getId());
-        
-        QuestionTextDTO question = database.createQuestion(questionDTO);
-        if (question == null) {
-            return new ErrorRes("Category not found.");
+            if (questionDTO == null || questionDTO.getCategory() == null) {
+                return new ErrorRes("Question data and category are required");
+            }
+
+            questionDTO.setCreated_by(user.getId());
+            
+            QuestionTextDTO question = database.createQuestion(questionDTO);
+            if (question == null) {
+                return new ErrorRes("Failed to create question. Category not found.");
+            }
+            return new AddQuestionRes("Question created successfully", question);
+        } catch (Exception e) {
+            return new ErrorRes("An error occurred: " + e.getMessage());
         }
-        return new AddQuestionRes("Question created successfully", question);
     }
 
     @PutMapping("/{id}")

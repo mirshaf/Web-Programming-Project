@@ -1,9 +1,10 @@
 package com.example.questionplatform.dto.request;
 
-import com.example.questionplatform.model.Question;
-import lombok.Data;
-
 import java.util.List;
+
+import com.example.questionplatform.model.Question;
+
+import lombok.Data;
 
 @Data
 public class QuestionDTO {
@@ -14,7 +15,7 @@ public class QuestionDTO {
     private String option4;
     private int correct_answer;
     private Question.Difficulty_Level difficulty_level;
-    private Integer category_id;
+    private String category;
     private List<Integer> related_question_ids;
     private Integer created_by;
 }
