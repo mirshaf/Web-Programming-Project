@@ -1,9 +1,7 @@
 package com.example.questionplatform.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,6 +17,7 @@ import com.example.questionplatform.repository.AnswerRepository;
 import com.example.questionplatform.repository.CategoryRepository;
 import com.example.questionplatform.repository.QuestionRepository;
 import com.example.questionplatform.repository.UserRepository;
+import com.example.questionplatform.service.TokenService;
 import com.example.questionplatform.util.JwtUtil;
 
 @Service
@@ -31,10 +30,10 @@ public class Database {
     private QuestionRepository questionRepository;
     @Autowired
     private AnswerRepository answerRepository;
-    private final Map<String, User> loggedInUsers = new HashMap<>();
+    @Autowired
+    private TokenService tokenService;
 
     public Database() {
-
     }
 
     // User
@@ -55,7 +54,7 @@ public class Database {
 
     public String loginUser(User user) {
         String jwtToken = JwtUtil.generateToken(user.getEmail());
-        loggedInUsers.put(jwtToken, user);
+        tokenService.saveToken(jwtToken, user.getEmail());
         return jwtToken;
     }
 
@@ -65,11 +64,19 @@ public class Database {
         }
 
         String jwtToken = authHeader.substring(7); // Remove "Bearer " prefix
-        return loggedInUsers.get(jwtToken);
+        String userEmail = tokenService.getUserEmailFromToken(jwtToken);
+        if (userEmail == null) {
+            return null;
+        }
+        return getUserByEmail(userEmail);
     }
 
     public boolean logoutUser(String jwtToken) {
-        return loggedInUsers.remove(jwtToken) != null;
+        if (tokenService.isTokenValid(jwtToken)) {
+            tokenService.removeToken(jwtToken);
+            return true;
+        }
+        return false;
     }
 
     public List<User> getUsers(String username) {
