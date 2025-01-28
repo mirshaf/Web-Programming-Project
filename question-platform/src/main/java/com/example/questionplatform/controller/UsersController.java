@@ -1,10 +1,21 @@
 package com.example.questionplatform.controller;
 
-import com.example.questionplatform.dto.response.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.questionplatform.dto.response.ErrorRes;
+import com.example.questionplatform.dto.response.GetUsersRes;
+import com.example.questionplatform.dto.response.MessageRes;
+import com.example.questionplatform.dto.response.Response;
+import com.example.questionplatform.dto.response.UserRes3;
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -18,7 +29,7 @@ public class UsersController {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
-        return new GetUsersRes(database.getUsers(query), user);
+        return new GetUsersRes(database.getUsers(query, user), user);
     }
 
     @GetMapping("/{id}")

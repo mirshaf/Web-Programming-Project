@@ -79,13 +79,20 @@ public class Database {
         return false;
     }
 
-    public List<User> getUsers(String username) {
+    public List<User> getUsers(String username, User requester) {
         if (username == null) {
-            return userRepository.findAll();
+            return userRepository.findAll().stream()
+                .filter(u -> !u.getId().equals(requester.getId()))
+                .toList();
         }
         return userRepository.findAll().stream()
+                .filter(u -> !u.getId().equals(requester.getId()))
                 .filter(u -> u.getUsername().equals(username))
                 .toList();
+    }
+
+    public List<User> getAllUsersForLeaderboard() {
+        return userRepository.findAll();
     }
 
     public User getUserById(Integer id) {
