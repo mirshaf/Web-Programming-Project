@@ -125,11 +125,13 @@ public class QuestionsController {
     }
 
     @GetMapping("/my")
-    public Response getMyQuestions(@RequestHeader("Authorization") String authHeader) {
+    public Response getMyQuestions(@RequestHeader("Authorization") String authHeader,
+                                    @RequestParam(required = false) String category,
+                                    @RequestParam(required = false) String difficulty) {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
 
-        return new QuestionsDTO(database.getQuestionsByUser(user.getId()));
+        return new QuestionsDTO(database.getQuestionsByUser(user.getId(), category, difficulty));
     }
 }

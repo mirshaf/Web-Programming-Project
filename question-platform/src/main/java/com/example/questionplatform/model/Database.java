@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -142,23 +143,24 @@ public class Database {
     }
 
     // Method to get all questions created by a user
-    public List<QuestionSummaryDTO> getQuestionsByUser(Integer userId) {
-        List<QuestionSummaryDTO> questionSummaryDTOs = new ArrayList<>();
-        List<Question> questions = questionRepository.findAll();
-        for (Question question : questions) {
-            if (question.getCreated_by().equals(userId)) {
+    public List<QuestionSummaryDTO> getQuestionsByUser(Integer userId, String categoryName, String difficulty) {
+        return questionRepository.findAll().stream()
+            .filter(q -> q.getCreated_by().equals(userId))
+            .filter(q -> categoryName == null || 
+                getCategoryById(q.getCategory_id()).getName().equals(categoryName))
+            .filter(q -> difficulty == null || 
+                q.getDifficulty_level().toString().equalsIgnoreCase(difficulty))
+            .map(question -> {
                 Category category = categoryRepository.findById(question.getCategory_id()).orElse(null);
-                String categoryName = category != null ? category.getName() : "Unknown";
-                QuestionSummaryDTO dto = new QuestionSummaryDTO(
-                        question.getId(),
-                        question.getText(),
-                        categoryName,
-                        question.getDifficulty_level().toString()
+                String catName = category != null ? category.getName() : "Unknown";
+                return new QuestionSummaryDTO(
+                    question.getId(),
+                    question.getText(),
+                    catName,
+                    question.getDifficulty_level().toString()
                 );
-                questionSummaryDTOs.add(dto);
-            }
-        }
-        return questionSummaryDTOs;
+            })
+            .collect(Collectors.toList());
     }
 
     public List<QuestionSummaryDTO> getAllQuestions() {
@@ -191,17 +193,13 @@ public class Database {
     }
 
     public List<Question> getQuestions(String categoryName, String difficulty) {
-        Category category = (categoryName == null) ? null : getCategoryByName(categoryName);
-        List<Question> filtered_questions = new ArrayList<>();
-        for (Question q : questionRepository.findAll()) {
-            if (category == null || q.getCategory_id().equals(category.getId())) {
-                if (difficulty == null || q.getDifficulty_level().toString().equals(difficulty)) {
-                    filtered_questions.add(q);
-                }
-            }
-        }
-
-        return filtered_questions;
+        List<Question> questions = questionRepository.findAll();
+        return questions.stream()
+            .filter(q -> categoryName == null || 
+                getCategoryById(q.getCategory_id()).getName().equals(categoryName))
+            .filter(q -> difficulty == null || 
+                q.getDifficulty_level().toString().equalsIgnoreCase(difficulty))
+            .collect(Collectors.toList());
     }
 
     public Question getRandomQuestion() {
