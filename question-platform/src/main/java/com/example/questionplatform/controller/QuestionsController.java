@@ -1,12 +1,30 @@
 package com.example.questionplatform.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.questionplatform.dto.request.QuestionDTO;
-import com.example.questionplatform.dto.response.*;
+import com.example.questionplatform.dto.response.AddQuestionRes;
+import com.example.questionplatform.dto.response.ErrorRes;
+import com.example.questionplatform.dto.response.GetAnsweredRes;
+import com.example.questionplatform.dto.response.MessageRes;
+import com.example.questionplatform.dto.response.QuestionRes;
+import com.example.questionplatform.dto.response.QuestionTextDTO;
+import com.example.questionplatform.dto.response.QuestionsDTO;
+import com.example.questionplatform.dto.response.QuestionsRes;
+import com.example.questionplatform.dto.response.Response;
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.Question;
 import com.example.questionplatform.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -66,6 +84,8 @@ public class QuestionsController {
         if (user == null)
             return new ErrorRes("Unauthenticated");
 
+        questionDTO.setCreated_by(user.getId());
+        
         QuestionTextDTO question = database.createQuestion(questionDTO);
         if (question == null) {
             return new ErrorRes("Category not found.");
