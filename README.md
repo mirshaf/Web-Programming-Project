@@ -135,3 +135,65 @@ The application is configured to accept requests from `http://localhost:3000` by
 
 - Spring Boot team for the excellent framework
 - The open-source community for various dependencies used in this project
+
+## Database Schema
+
+```mermaid
+erDiagram
+User {
+int id PK
+string username
+string password
+enum role
+string email
+int points
+string avatar_url
+timestamp created_at
+timestamp updated_at
+}
+Category {
+int id PK
+string name
+string description
+int created_by FK
+timestamp created_at
+timestamp updated_at
+}
+Question {
+int id PK
+string text
+string option1
+string option2
+string option3
+string option4
+int correct_answer
+enum difficulty_level
+int created_by FK
+int category_id FK
+array related_question_ids
+timestamp created_at
+timestamp updated_at
+}
+Answer {
+int id PK
+int question_id FK
+int player_id FK
+int selected_option
+boolean is_correct
+timestamp created_at
+}
+Follow {
+int id PK
+int follower_id FK
+int following_id FK
+timestamp created_at
+}
+User ||--o{ Category : "creates"
+User ||--o{ Question : "creates"
+User ||--o{ Answer : "submits"
+Category ||--o{ Question : "contains"
+Question ||--o{ Answer : "has"
+User ||--o{ Follow : "follower"
+User ||--o{ Follow : "following"
+Question ||--o{ Question : "related to"
+```
