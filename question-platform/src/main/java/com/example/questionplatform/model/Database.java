@@ -1,17 +1,22 @@
 package com.example.questionplatform.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.example.questionplatform.dto.request.QuestionDTO;
+import com.example.questionplatform.dto.response.CategoryDTO2;
 import com.example.questionplatform.dto.response.QuestionSummaryDTO;
 import com.example.questionplatform.dto.response.QuestionTextDTO;
 import com.example.questionplatform.repository.CategoryRepository;
 import com.example.questionplatform.repository.QuestionRepository;
 import com.example.questionplatform.repository.UserRepository;
-import com.example.questionplatform.dto.response.CategoryDTO2;
 import com.example.questionplatform.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 @Service
 public class Database {
