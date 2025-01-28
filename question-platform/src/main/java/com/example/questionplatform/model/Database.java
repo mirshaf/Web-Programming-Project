@@ -15,6 +15,7 @@ import com.example.questionplatform.dto.response.QuestionSummaryDTO;
 import com.example.questionplatform.dto.response.QuestionTextDTO;
 import com.example.questionplatform.repository.AnswerRepository;
 import com.example.questionplatform.repository.CategoryRepository;
+import com.example.questionplatform.repository.FollowRepository;
 import com.example.questionplatform.repository.QuestionRepository;
 import com.example.questionplatform.repository.UserRepository;
 import com.example.questionplatform.service.TokenService;
@@ -32,6 +33,8 @@ public class Database {
     private AnswerRepository answerRepository;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private FollowRepository followRepository;
 
     public Database() {
     }
@@ -242,11 +245,23 @@ public class Database {
             .collect(Collectors.toSet());
 
         return questions.stream()
-            .filter(q -> !answeredQuestionIds.contains(q.getId())) // Filter out answered questions
+            .filter(q -> !answeredQuestionIds.contains(q.getId()))
             .filter(q -> categoryName == null || 
                 getCategoryById(q.getCategory_id()).getName().equals(categoryName))
             .filter(q -> difficulty == null || 
                 q.getDifficulty_level().toString().equalsIgnoreCase(difficulty))
+            .collect(Collectors.toList());
+    }
+
+    public List<Question> getFeed(User user) {
+        List<Answer> userAnswers = answerRepository.findByPlayerId(user.getId());
+        Set<Integer> answeredQuestionIds = userAnswers.stream()
+            .map(Answer::getQuestion_id)
+            .collect(Collectors.toSet());
+
+        return questionRepository.findAll().stream()
+            .filter(q -> user.getFollowingIds().contains(q.getCreated_by()))
+            .filter(q -> !answeredQuestionIds.contains(q.getId()))
             .collect(Collectors.toList());
     }
 
@@ -372,5 +387,48 @@ public class Database {
 
     public Answer getAnswerById(Integer id) {
         return answerRepository.findById(id).orElse(null);
+    }
+
+    public boolean followUser(User follower, Integer followingId) {
+        User following = getUserById(followingId);
+        if (following == null || follower.getId().equals(followingId)) {
+            return false;
+        }
+
+        if (followRepository.findByFollowerIdAndFollowingId(follower.getId(), followingId).isPresent()) {
+            return false;
+        }
+
+        Follow follow = new Follow(follower.getId(), followingId);
+        followRepository.save(follow);
+        
+        follower.addFollowing(followingId);
+        following.addFollower();
+        
+        userRepository.save(follower);
+        userRepository.save(following);
+        return true;
+    }
+
+    public boolean unfollowUser(User follower, Integer followingId) {
+        User following = getUserById(followingId);
+        if (following == null) {
+            return false;
+        }
+
+        Follow follow = followRepository.findByFollowerIdAndFollowingId(follower.getId(), followingId)
+            .orElse(null);
+        if (follow == null) {
+            return false;
+        }
+
+        followRepository.delete(follow);
+        
+        follower.removeFollowing(followingId);
+        following.removeFollower();
+        
+        userRepository.save(follower);
+        userRepository.save(following);
+        return true;
     }
 }

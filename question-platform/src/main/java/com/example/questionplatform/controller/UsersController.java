@@ -54,34 +54,22 @@ public class UsersController {
         if (user == null)
             return new ErrorRes("Unauthenticated");
 
-        User other = database.getUserById(id);
-        if (other == null) {
-            return new ErrorRes("User not found");
+        if (database.followUser(user, id)) {
+            return new MessageRes("User followed successfully");
         }
-
-        if (! user.addFollowing(other.getId())) {
-            return new ErrorRes("Already following");
-        }
-        other.addFollower();
-        return new MessageRes("User followed successfully");
+        return new ErrorRes("Failed to follow user");
     }
 
     @PostMapping("/{id}/unfollow")
     public Response unfollowUser(@RequestHeader("Authorization") String authHeader,
-                               @PathVariable Integer id) {
+                                 @PathVariable Integer id) {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
 
-        User other = database.getUserById(id);
-        if (other == null) {
-            return new ErrorRes("User not found");
+        if (database.unfollowUser(user, id)) {
+            return new MessageRes("User unfollowed successfully");
         }
-
-        if (! user.removeFollowing(other.getId())) {
-            return new ErrorRes("Was not following");
-        }
-        other.removeFollower();
-        return new MessageRes("User unfollowed successfully");
+        return new ErrorRes("Failed to unfollow user");
     }
 }

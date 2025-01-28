@@ -42,6 +42,14 @@ public class QuestionsController {
         return new QuestionsRes(database.getQuestions(category, difficulty, user), database);
     }
 
+    @GetMapping("/feed")
+    public Response getFeed(@RequestHeader("Authorization") String authHeader) {
+        User user = database.getUser(authHeader);
+        if (user == null)
+            return new ErrorRes("Unauthenticated");
+        return new QuestionsRes(database.getFeed(user), database);
+    }
+
     @GetMapping("/{id}")
     public Response getQuestion(@RequestHeader("Authorization") String authHeader,
                                 @PathVariable("id") Integer id){
