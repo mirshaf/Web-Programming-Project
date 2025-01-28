@@ -99,6 +99,10 @@ public class Database {
         return userRepository.findById(id).orElse(null);
     }
 
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
+
     // Question
 
     public QuestionTextDTO createQuestion(QuestionDTO questionDTO) {
@@ -339,10 +343,10 @@ public class Database {
 
     // Answer
 
-    public boolean addAnswer(Answer answer) {
+    public Answer addAnswer(Answer answer) {
         Question question = questionRepository.findById(answer.getQuestion_id()).orElse(null);
         if (question == null) {
-            return false;
+            return null;
         }
         
         // Check if user has already answered this question
@@ -352,11 +356,14 @@ public class Database {
         );
         
         if (!existingAnswers.isEmpty()) {
-            return false;
+            return null;
         }
 
-        answerRepository.save(answer);
-        return true;
+        try {
+            return answerRepository.save(answer);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public List<Answer> getAnswersByUser(Integer userId) {

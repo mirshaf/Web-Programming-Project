@@ -1,10 +1,18 @@
 package com.example.questionplatform.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import lombok.Data;
 
 @Entity
 @Data
@@ -19,11 +27,20 @@ public class User {
     private int points = 0;
     private String avatar_url;
     private int followings = 0, followers = 0;
+    
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_following", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "following_id")
     private List<Integer> followingIds = new ArrayList<>();
+    
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_answered_questions", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "question_id")
     private List<Integer> answeredQuestionsIds = new ArrayList<>();
+    
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_answers", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "answer_id")
     private List<Integer> answerIds = new ArrayList<>();
 
     public boolean comparePassword(String password) {
