@@ -1,26 +1,28 @@
 package com.example.questionplatform.dto.response;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.questionplatform.model.Answer;
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.Question;
 import com.example.questionplatform.model.User;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GetAnsweredRes implements Response {
     List<QuestionRes> questions;
 
     public GetAnsweredRes(User user, Database database) {
         this.questions = new ArrayList<>();
+        List<Answer> answers = database.getAnswersByUser(user.getId());
         int i = 0;
-        for (Integer id : user.getAnswerIds()) {
-            Answer answer = database.getAnswerById(id);
+        for (Answer answer : answers) {
             Question question = database.getQuestionById(answer.getQuestion_id());
-            QuestionRes questionRes = new QuestionRes(question, database, answer.getSelected_option(), answer.getIs_correct());
-            questions.add(questionRes);
-            if (++i >= 20) {
-                break;
+            if (question != null) {
+                QuestionRes questionRes = new QuestionRes(question, database, answer.getSelected_option(), answer.getIs_correct());
+                questions.add(questionRes);
+                if (++i >= 20) {
+                    break;
+                }
             }
         }
     }

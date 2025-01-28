@@ -14,6 +14,7 @@ import com.example.questionplatform.dto.request.QuestionDTO;
 import com.example.questionplatform.dto.response.CategoryDTO2;
 import com.example.questionplatform.dto.response.QuestionSummaryDTO;
 import com.example.questionplatform.dto.response.QuestionTextDTO;
+import com.example.questionplatform.repository.AnswerRepository;
 import com.example.questionplatform.repository.CategoryRepository;
 import com.example.questionplatform.repository.QuestionRepository;
 import com.example.questionplatform.repository.UserRepository;
@@ -27,8 +28,9 @@ public class Database {
     private CategoryRepository categoryRepository;
     @Autowired
     private QuestionRepository questionRepository;
+    @Autowired
+    private AnswerRepository answerRepository;
     private final Map<String, User> loggedInUsers = new HashMap<>();
-    private final Map<Integer, Answer> answers = new HashMap<>();
 
     public Database() {
 
@@ -296,15 +298,30 @@ public class Database {
     // Answer
 
     public boolean addAnswer(Answer answer) {
-        if (this.answers.containsKey(answer.getId())) {
+        Question question = questionRepository.findById(answer.getQuestion_id()).orElse(null);
+        if (question == null) {
+            return false;
+        }
+        
+        // Check if user has already answered this question
+        List<Answer> existingAnswers = answerRepository.findByPlayerIdAndQuestionId(
+            answer.getPlayer_id(), 
+            answer.getQuestion_id()
+        );
+        
+        if (!existingAnswers.isEmpty()) {
             return false;
         }
 
-        this.answers.put(answer.getId(), answer);
+        answerRepository.save(answer);
         return true;
     }
 
+    public List<Answer> getAnswersByUser(Integer userId) {
+        return answerRepository.findByPlayerId(userId);
+    }
+
     public Answer getAnswerById(Integer id) {
-        return this.answers.get(id);
+        return answerRepository.findById(id).orElse(null);
     }
 }
