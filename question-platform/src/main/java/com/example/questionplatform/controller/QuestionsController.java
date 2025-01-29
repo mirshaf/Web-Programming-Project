@@ -25,12 +25,16 @@ import com.example.questionplatform.dto.response.Response;
 import com.example.questionplatform.model.Database;
 import com.example.questionplatform.model.Question;
 import com.example.questionplatform.model.User;
+import com.example.questionplatform.service.AuthorizationService;
 
 @RestController
 @RequestMapping("/api/questions")
 public class QuestionsController {
     @Autowired
     Database database;
+
+    @Autowired
+    AuthorizationService authorizationService;
 
     @GetMapping()
     public Response getQuestions(@RequestHeader("Authorization") String authHeader,
@@ -39,6 +43,11 @@ public class QuestionsController {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
+        
+        if (!authorizationService.isPlayer(user)) {
+            return new ErrorRes("Only players can view questions");
+        }
+        
         return new QuestionsRes(database.getQuestions(category, difficulty, user), database);
     }
 
@@ -52,10 +61,15 @@ public class QuestionsController {
 
     @GetMapping("/{id}")
     public Response getQuestion(@RequestHeader("Authorization") String authHeader,
-                                @PathVariable("id") Integer id){
+                                @PathVariable("id") Integer id) {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
+
+        if (!authorizationService.isPlayer(user)) {
+            return new ErrorRes("Only players can view questions");
+        }
+
         Question question = database.getQuestionById(id);
         if (question == null) {
             return new ErrorRes("Question not found");
@@ -93,6 +107,10 @@ public class QuestionsController {
             if (user == null)
                 return new ErrorRes("Unauthenticated");
 
+            if (!authorizationService.canCreateQuestion(user)) {
+                return new ErrorRes("Only designers can create questions");
+            }
+
             if (questionDTO == null || questionDTO.getCategory() == null) {
                 return new ErrorRes("Question data and category are required");
             }
@@ -117,19 +135,37 @@ public class QuestionsController {
         if (user == null)
             return new ErrorRes("Unauthenticated");
 
+        Question existingQuestion = database.getQuestionById(id);
+        if (existingQuestion == null) {
+            return new ErrorRes("Question not found");
+        }
+
+        if (!authorizationService.canEditQuestion(user, existingQuestion.getCreated_by())) {
+            return new ErrorRes("You can only edit your own questions");
+        }
+
         QuestionTextDTO question = database.editQuestion(id, questionDTO);
         if (question == null) {
-            return new ErrorRes("Question or category not found.");
+            return new ErrorRes("Failed to update question");
         }
         return new AddQuestionRes("Question updated successfully", question);
     }
 
     @DeleteMapping("/{id}")
-    public Response editQuestion(@RequestHeader("Authorization") String authHeader,
+    public Response deleteQuestion(@RequestHeader("Authorization") String authHeader,
                                  @PathVariable("id") Integer id) {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
+
+        Question existingQuestion = database.getQuestionById(id);
+        if (existingQuestion == null) {
+            return new ErrorRes("Question not found");
+        }
+
+        if (!authorizationService.canDeleteQuestion(user, existingQuestion.getCreated_by())) {
+            return new ErrorRes("You can only delete your own questions");
+        }
 
         Boolean result = database.deleteQuestion(id);
         if (result == null) {
@@ -147,6 +183,10 @@ public class QuestionsController {
         User user = database.getUser(authHeader);
         if (user == null)
             return new ErrorRes("Unauthenticated");
+
+        if (!authorizationService.isDesigner(user)) {
+            return new ErrorRes("Only designers can view their questions");
+        }
 
         return new QuestionsDTO(database.getQuestionsByUser(user.getId(), category, difficulty));
     }
