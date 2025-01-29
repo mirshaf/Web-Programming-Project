@@ -1,12 +1,23 @@
 package com.example.questionplatform.controller;
 
-import com.example.questionplatform.dto.response.*;
-import com.example.questionplatform.model.Database;
-import com.example.questionplatform.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.questionplatform.dto.request.LoginReq;
 import com.example.questionplatform.dto.request.RegisterReq;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import com.example.questionplatform.dto.response.ErrorRes;
+import com.example.questionplatform.dto.response.LoginRes;
+import com.example.questionplatform.dto.response.MessageRes;
+import com.example.questionplatform.dto.response.RegisterRes;
+import com.example.questionplatform.dto.response.Response;
+import com.example.questionplatform.dto.response.UserRes;
+import com.example.questionplatform.model.Database;
+import com.example.questionplatform.model.User;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -60,5 +71,21 @@ public class AuthController {
         } else {
             return new ErrorRes("Invalid or expired token");
         }
+    }
+
+    @GetMapping("/check")
+    public Response checkToken(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return new ErrorRes("Authorization header is missing or invalid");
+        }
+
+        String jwtToken = authHeader.substring(7); // Remove "Bearer " prefix
+        User user = database.getUser(authHeader);
+        
+        if (user == null || !database.isTokenValid(jwtToken)) {
+            return new ErrorRes("Invalid or expired token");
+        }
+
+        return new MessageRes("Token is valid");
     }
 }

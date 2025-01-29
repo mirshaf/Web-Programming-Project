@@ -82,6 +82,10 @@ public class Database {
         return false;
     }
 
+    public boolean isTokenValid(String jwtToken) {
+        return tokenService.isTokenValid(jwtToken);
+    }
+
     public List<User> getUsers(String username, User requester) {
         if (username == null) {
             return userRepository.findAll().stream()
