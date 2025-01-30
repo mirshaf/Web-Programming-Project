@@ -18,6 +18,7 @@ import com.example.questionplatform.repository.CategoryRepository;
 import com.example.questionplatform.repository.FollowRepository;
 import com.example.questionplatform.repository.QuestionRepository;
 import com.example.questionplatform.repository.UserRepository;
+import com.example.questionplatform.service.AuthCheckService;
 import com.example.questionplatform.service.TokenService;
 import com.example.questionplatform.util.JwtUtil;
 
@@ -35,6 +36,8 @@ public class Database {
     private TokenService tokenService;
     @Autowired
     private FollowRepository followRepository;
+    @Autowired
+    private AuthCheckService authCheckService;
 
     public Database() {
     }
@@ -66,12 +69,7 @@ public class Database {
             return null;
         }
 
-        String jwtToken = authHeader.substring(7); // Remove "Bearer " prefix
-        String userEmail = tokenService.getUserEmailFromToken(jwtToken);
-        if (userEmail == null) {
-            return null;
-        }
-        return getUserByEmail(userEmail);
+        return authCheckService.getUserFromToken(authHeader);
     }
 
     public boolean logoutUser(String jwtToken) {

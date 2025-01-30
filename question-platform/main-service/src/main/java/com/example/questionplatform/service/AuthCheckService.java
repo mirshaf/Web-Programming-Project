@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.questionplatform.dto.response.AuthCheckResponse;
+import com.example.questionplatform.model.User;
 
 @Service
 public class AuthCheckService {
@@ -22,6 +23,16 @@ public class AuthCheckService {
     }
 
     public boolean isTokenValid(String authHeader) {
+        AuthCheckResponse response = checkToken(authHeader);
+        return response != null && response.getMessage().equals("Token is valid");
+    }
+
+    public User getUserFromToken(String authHeader) {
+        AuthCheckResponse response = checkToken(authHeader);
+        return response != null ? response.getUser() : null;
+    }
+
+    private AuthCheckResponse checkToken(String authHeader) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", authHeader);
@@ -34,12 +45,9 @@ public class AuthCheckService {
                 AuthCheckResponse.class
             );
 
-            if (response.getBody() != null) {
-                return response.getBody().getMessage().equals("Token is valid");
-            }
-            return false;
+            return response.getBody();
         } catch (Exception e) {
-            return false;
+            return null;
         }
     }
 } 
