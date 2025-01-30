@@ -11,6 +11,11 @@ services:
       - ./auth-service/db.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   main-db:
     image: mysql:8.0
@@ -22,11 +27,21 @@ services:
       - ./main-service/db.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   auth-service:
     build:
@@ -38,10 +53,25 @@ services:
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_REDIS_HOST: redis
     ports:
-      - "8081:8081"
+      - "8081-8085:8081"
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
     depends_on:
-      - auth-db
-      - redis
+      auth-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   main-service:
     build:
@@ -55,11 +85,31 @@ services:
       AUTH_SERVICE_URL: http://auth-service:8081
     ports:
       - "8080:8080"
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
     depends_on:
-      - main-db
-      - auth-service
-      - redis
+      main-db:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   auth-data:
   main-data:
+
+networks:
+  default:
+    driver: bridge
