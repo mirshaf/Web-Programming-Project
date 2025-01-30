@@ -15,7 +15,7 @@ import com.example.questionplatform.model.User;
 public class AuthCheckService {
     
     private final RestTemplate restTemplate;
-    private static final String AUTH_CHECK_URL = "http://localhost:8080/api/auth/check";
+    private static final String AUTH_CHECK_URL = "http://localhost:8081/api/auth/check";
 
     @Autowired
     public AuthCheckService(RestTemplate restTemplate) {
