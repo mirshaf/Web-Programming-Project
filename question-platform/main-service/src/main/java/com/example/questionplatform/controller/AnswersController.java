@@ -43,10 +43,13 @@ public class AnswersController {
         }
 
         String selectedOption = answerReq.getSelected_option();
-        if (!selectedOption.equals(question.getOption1()) && 
-            !selectedOption.equals(question.getOption2()) && 
-            !selectedOption.equals(question.getOption3()) && 
-            !selectedOption.equals(question.getOption4())) {
+        if (!selectedOption.equals(question.getCorrectOption())) {
+            boolean isCorrect = selectedOption.equals(question.getCorrectOption());
+            Answer answer = new Answer(question.getId(), user.getId(), selectedOption, isCorrect);
+            Answer savedAnswer = database.addAnswer(answer);
+            if (savedAnswer == null) {
+                return new ErrorRes("You have already answered this question or an error occurred");
+            }
             return new ErrorRes("Invalid option selected");
         }
 

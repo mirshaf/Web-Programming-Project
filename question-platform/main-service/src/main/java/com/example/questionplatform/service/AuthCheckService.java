@@ -24,7 +24,7 @@ public class AuthCheckService {
 
     public boolean isTokenValid(String authHeader) {
         AuthCheckResponse response = checkToken(authHeader);
-        return response != null && response.getMessage().equals("Token is valid");
+        return response != null && "Token is valid".equals(response.getMessage());
     }
 
     public User getUserFromToken(String authHeader) {
