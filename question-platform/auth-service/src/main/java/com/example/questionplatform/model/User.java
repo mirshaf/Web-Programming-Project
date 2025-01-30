@@ -21,6 +21,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String username;
+    @Column(nullable = false)
     private String password; //todo: hash
     private String role;
     private String email;
@@ -44,6 +45,9 @@ public class User {
     private List<Integer> answerIds = new ArrayList<>();
 
     public boolean comparePassword(String password) {
+        if (this.password == null || password == null) {
+            return false;
+        }
         return this.password.equals(password); //todo: use hash
     }
 
