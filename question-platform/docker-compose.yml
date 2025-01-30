@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  auth-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: quizplatform
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - auth-data:/var/lib/mysql
+      - ./auth-service/db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+
+  main-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: quizplatform
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - main-data:/var/lib/mysql
+      - ./main-service/db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3307:3306"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://auth-db:3306/quizplatform
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_REDIS_HOST: redis
+    ports:
+      - "8081:8081"
+    depends_on:
+      - auth-db
+      - redis
+
+  main-service:
+    build:
+      context: ./main-service
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://main-db:3306/quizplatform
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_REDIS_HOST: redis
+      AUTH_SERVICE_URL: http://auth-service:8081
+    ports:
+      - "8080:8080"
+    depends_on:
+      - main-db
+      - auth-service
+      - redis
+
+volumes:
+  auth-data:
+  main-data:
