@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.questionplatform.dto.request.LoginReq;
 import com.example.questionplatform.dto.request.RegisterReq;
+import com.example.questionplatform.dto.response.AuthCheckResponse;
 import com.example.questionplatform.dto.response.ErrorRes;
 import com.example.questionplatform.dto.response.LoginRes;
 import com.example.questionplatform.dto.response.MessageRes;
@@ -86,6 +87,6 @@ public class AuthController {
             return new ErrorRes("Invalid or expired token");
         }
 
-        return new MessageRes("Token is valid");
+        return new AuthCheckResponse("Token is valid", user);
     }
 }
