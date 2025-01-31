@@ -1,6 +1,27 @@
 version: "3.8"
 
 services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      main-service:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
   auth-db:
     image: mysql:8.0
     environment:
@@ -16,6 +37,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
 
   main-db:
     image: mysql:8.0
@@ -32,6 +56,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
 
   redis:
     image: redis:latest
@@ -42,6 +69,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
 
   auth-service:
     build:
@@ -52,26 +82,33 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
     ports:
-      - "8081-8085:8081"
+      - "8081:8081"
     deploy:
       mode: replicated
-      replicas: 2
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
+      replicas: 1
     depends_on:
       auth-db:
         condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
-      interval: 30s
-      timeout: 10s
+      test:
+        [
+          "CMD",
+          "wget",
+          "--spider",
+          "-q",
+          "http://localhost:8081/actuator/health",
+        ]
+      interval: 10s
+      timeout: 5s
       retries: 3
+      start_period: 30s
+    networks:
+      - app-network
+    restart: unless-stopped
 
   main-service:
     build:
@@ -82,17 +119,13 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
       AUTH_SERVICE_URL: http://auth-service:8081
     ports:
       - "8080:8080"
     deploy:
       mode: replicated
-      replicas: 2
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
+      replicas: 1
     depends_on:
       main-db:
         condition: service_healthy
@@ -101,15 +134,26 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
+      test:
+        [
+          "CMD",
+          "wget",
+          "--spider",
+          "-q",
+          "http://localhost:8080/actuator/health",
+        ]
+      interval: 10s
+      timeout: 5s
       retries: 3
+      start_period: 30s
+    networks:
+      - app-network
+    restart: unless-stopped
 
 volumes:
   auth-data:
   main-data:
 
 networks:
-  default:
+  app-network:
     driver: bridge
